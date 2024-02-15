@@ -1,0 +1,12 @@
+/* control-styles.css */
+div.stButton > button:first-child {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    border: 1px solid #4CAF50; /* Green border */
+    width:100%;
+}
+
+div.stButton > button:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
