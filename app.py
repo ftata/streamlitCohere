@@ -13,7 +13,7 @@ def load_css(file_name):
 # Load and inject CSS styles
 css_styles = load_css("styles/control-styles.css")
 st.markdown(f"<style>{css_styles}</style>", unsafe_allow_html=True)
-    
+
 # Initialize Cohere client with your API key from an environment variable
 cohere_api_key = os.getenv('CO_KEY')
 if not cohere_api_key:
@@ -28,6 +28,12 @@ uploaded_files = st.sidebar.file_uploader("Upload your documents:", type=['pdf',
 
 # Text input for the question in the sidebar
 question = st.sidebar.text_input("Enter your question:")
+
+# ADDED: Temperature slider for model generation
+temperature = st.sidebar.slider("Adjust Temperature:", min_value=0.0, max_value=1.0, value=0.5, step=0.05)
+
+# ADDED: Slider for max tokens
+max_tokens = st.sidebar.slider("Max Tokens:", min_value=10, max_value=1000, value=50, step=10)
 
 # Button to submit the question in the sidebar
 submit_button = st.sidebar.button('Get Answer')
@@ -75,11 +81,12 @@ if submit_button:
             document_texts = [extract_text(uploaded_file) for uploaded_file in uploaded_files]
             truncated_document_text = truncate_documents(document_texts, 4000)
             try:
+                # UPDATED: Use the selected temperature and max tokens for model generation
                 response = co.generate(
                     model='command',  # Model Name
                     prompt=f"Documents: {truncated_document_text}\nQuestion: {question}\nAnswer:",
-                    max_tokens=50,
-                    temperature=0.5,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
                     stop_sequences=["\n"],
                 )
                 answer = response.generations[0].text.strip()
@@ -96,4 +103,4 @@ if submit_button:
 st.title("Conversation History:")
 for idx, (q, a) in enumerate(st.session_state['conversation_history']):
     st.text(f"Question {idx+1}: {q}")
-    st.text_area(f"Awnser{idx+1}", a, height=150, key=f"a_{idx}")
+    st.text_area(f"Answer {idx+1}", a, height=150, key=f"a_{idx}")
